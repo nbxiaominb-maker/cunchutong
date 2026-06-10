@@ -131,6 +131,10 @@ tr:hover td{background:var(--sf2)}
     Bucket Storage
   </h1>
   <div class="api-key-group">
+    <label>Base URL</label>
+    <input type="text" id="baseUrl" placeholder="http://...">
+  </div>
+  <div class="api-key-group">
     <label>API Key</label>
     <input type="password" id="apiKey" placeholder="Enter API key...">
   </div>
@@ -256,11 +260,26 @@ tr:hover td{background:var(--sf2)}
 
 <script>
 const API = window.location.origin;
+let BASE_URL = localStorage.getItem('bucketd_base_url') || API;
 let files = [];
 let editingId = '';
 let currentPage = 1;
 let totalPages = 1;
 let debounceTimer = null;
+
+// Init base URL input
+const baseUrlInput = document.getElementById('baseUrl');
+if (baseUrlInput) {
+  baseUrlInput.value = BASE_URL;
+  baseUrlInput.addEventListener('change', e => {
+    BASE_URL = e.target.value.trim().replace(/\/+$/, '');
+    localStorage.setItem('bucketd_base_url', BASE_URL);
+    toast('Base URL updated to ' + BASE_URL);
+    loadFiles();
+  });
+}
+
+function getFileUrl(hash) { return BASE_URL + '/f/' + hash; }
 
 // --- Tabs ---
 document.querySelectorAll('.tab').forEach(t => {
@@ -340,7 +359,7 @@ async function uploadOne(file) {
 function showResult(r) {
   const c = document.getElementById('resultCard');
   c.style.display = 'block';
-  document.getElementById('resultUrl').value = r.url;
+  document.getElementById('resultUrl').value = getFileUrl(r.sha256);
   document.getElementById('resName').textContent = r.filename;
   document.getElementById('resSize').textContent = fmtSize(r.size);
   document.getElementById('resType').textContent = r.mime;
@@ -387,7 +406,7 @@ function renderTable(list) {
     return;
   }
   tbody.innerHTML = list.map(f => {
-    const url = API + '/f/' + f.sha256;
+    const url = getFileUrl(f.sha256) + f.sha256;
     const icon = fileIcon(f.mime_type);
     const tags = (f.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
     const date = new Date(f.created_at).toLocaleDateString('zh-CN');
@@ -425,10 +444,10 @@ function openEdit(id) {
   document.getElementById('editBucket').value = f.bucket;
   document.getElementById('editTags').value = (f.tags||[]).join(', ');
   document.getElementById('editPublic').value = f.is_public ? 'true' : 'false';
-  document.getElementById('editUrl').value = API + '/f/' + f.sha256;
+  document.getElementById('editUrl').value = getFileUrl(f.sha256) + f.sha256;
   // preview
   const box = document.getElementById('editPreview');
-  const url = API + '/f/' + f.sha256;
+  const url = getFileUrl(f.sha256) + f.sha256;
   if (f.mime_type && f.mime_type.startsWith('image/')) box.innerHTML = '<img src="'+url+'">';
   else if (f.mime_type && f.mime_type.startsWith('video/')) box.innerHTML = '<video src="'+url+'" controls>';
   else if (f.mime_type && f.mime_type.startsWith('audio/')) box.innerHTML = '<audio src="'+url+'" controls style="width:100%">';
