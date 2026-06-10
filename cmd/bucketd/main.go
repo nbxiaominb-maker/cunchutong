@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	configPath := flag.String("config", "", "path to config file")
+	configPath := flag.String("config", "configs/bucketd.yaml", "path to config file")
 	host := flag.String("host", "", "bind address")
 	port := flag.Int("port", 0, "bind port")
 	dataDir := flag.String("data-dir", "", "storage root directory")
@@ -71,8 +71,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	baseURL := fmt.Sprintf("http://%s", cfg.Addr())
-	logger.Info("starting bucketd", "addr", cfg.Addr(), "data_dir", cfg.Storage.DataDir)
+	baseURL := cfg.Server.ExternalURL
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://%s", cfg.Addr())
+	}
+	logger.Info("starting bucketd", "addr", cfg.Addr(), "base_url", baseURL, "data_dir", cfg.Storage.DataDir)
 
 	apiKeyMap := handler.BuildAPIKeyMap(convertAPIKeys(cfg.Security.APIKeys))
 	mw := handler.NewMiddleware(apiKeyMap, cfg.CORS.AllowedOrigins, logger)

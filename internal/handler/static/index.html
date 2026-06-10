@@ -281,6 +281,7 @@ const savedKey = localStorage.getItem('bucketd_api_key');
 if (savedKey) document.getElementById('apiKey').value = savedKey;
 document.getElementById('apiKey').addEventListener('input', e => {
   localStorage.setItem('bucketd_api_key', e.target.value);
+  if (e.target.value.trim()) loadFiles();
 });
 
 // --- Upload ---
@@ -357,6 +358,12 @@ async function loadFiles() {
     const ftype = document.getElementById('filterType').value;
     if (bucket) params.set('bucket', bucket);
     const resp = await fetch(API + '/api/v1/files?' + params, { headers: headers() });
+    if (resp.status === 401) {
+      toast('Invalid API Key', 'var(--rd)');
+      document.getElementById('statsText').textContent = '';
+      document.getElementById('fileBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--og)">Please enter a valid API Key above</td></tr>';
+      return;
+    }
     const data = await resp.json();
     let list = data.files || [];
     if (search) {

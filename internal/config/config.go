@@ -23,6 +23,7 @@ type Config struct {
 type ServerConfig struct {
 	Host          string        `yaml:"host"`
 	Port          int           `yaml:"port"`
+	ExternalURL   string        `yaml:"external_url"`
 	ReadTimeout   time.Duration `yaml:"read_timeout"`
 	WriteTimeout  time.Duration `yaml:"write_timeout"`
 	MaxUploadSize int64         `yaml:"max_upload_size"`
@@ -114,9 +115,10 @@ func Load(path string) (*Config, error) {
 	if path != "" {
 		data, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("read config file: %w", err)
-		}
-		if err := yaml.Unmarshal(data, cfg); err != nil {
+			if !os.IsNotExist(err) {
+				return nil, fmt.Errorf("read config file: %w", err)
+			}
+		} else if err := yaml.Unmarshal(data, cfg); err != nil {
 			return nil, fmt.Errorf("parse config file: %w", err)
 		}
 	}

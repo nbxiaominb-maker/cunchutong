@@ -1,6 +1,7 @@
 server:
   host: "0.0.0.0"
   port: 8080
+  external_url: "http://100sq08np5472.vicp.fun"
   read_timeout: 30s
   write_timeout: 300s
   max_upload_size: 5368709120  # 5GB
