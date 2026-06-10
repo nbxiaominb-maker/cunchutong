@@ -406,7 +406,7 @@ function renderTable(list) {
     return;
   }
   tbody.innerHTML = list.map(f => {
-    const url = getFileUrl(f.sha256) + f.sha256;
+    const url = getFileUrl(f.sha256);
     const icon = fileIcon(f.mime_type);
     const tags = (f.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
     const date = new Date(f.created_at).toLocaleDateString('zh-CN');
@@ -444,10 +444,10 @@ function openEdit(id) {
   document.getElementById('editBucket').value = f.bucket;
   document.getElementById('editTags').value = (f.tags||[]).join(', ');
   document.getElementById('editPublic').value = f.is_public ? 'true' : 'false';
-  document.getElementById('editUrl').value = getFileUrl(f.sha256) + f.sha256;
+  document.getElementById('editUrl').value = getFileUrl(f.sha256);
   // preview
   const box = document.getElementById('editPreview');
-  const url = getFileUrl(f.sha256) + f.sha256;
+  const url = getFileUrl(f.sha256);
   if (f.mime_type && f.mime_type.startsWith('image/')) box.innerHTML = '<img src="'+url+'">';
   else if (f.mime_type && f.mime_type.startsWith('video/')) box.innerHTML = '<video src="'+url+'" controls>';
   else if (f.mime_type && f.mime_type.startsWith('audio/')) box.innerHTML = '<audio src="'+url+'" controls style="width:100%">';
