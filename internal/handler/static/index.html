@@ -5,327 +5,249 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bucket Storage</title>
 <style>
-:root {
-  --bg: #0f1117;
-  --surface: #1a1d27;
-  --surface2: #242836;
-  --border: #2e3345;
-  --text: #e4e6ef;
-  --text2: #8b8fa3;
-  --accent: #6c5ce7;
-  --accent2: #a29bfe;
-  --green: #00b894;
-  --red: #ff6b6b;
-  --orange: #fdcb6e;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-.header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.header h1 svg { width: 24px; height: 24px; }
-.api-key-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.api-key-group label {
-  font-size: 13px;
-  color: var(--text2);
-}
-.api-key-group input {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  color: var(--text);
-  font-size: 13px;
-  width: 280px;
-  font-family: monospace;
-}
-.api-key-group input:focus { outline: none; border-color: var(--accent); }
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+:root{--bg:#0f1117;--sf:#1a1d27;--sf2:#242836;--bd:#2e3345;--tx:#e4e6ef;--tx2:#8b8fa3;--ac:#6c5ce7;--ac2:#a29bfe;--gn:#00b894;--rd:#ff6b6b;--og:#fdcb6e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.header{background:var(--sf);border-bottom:1px solid var(--bd);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:18px;font-weight:600;display:flex;align-items:center;gap:10px}
+.header h1 svg{width:24px;height:24px}
+.api-key-group{display:flex;align-items:center;gap:8px}
+.api-key-group label{font-size:13px;color:var(--tx2)}
+.api-key-group input{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:13px;width:260px;font-family:monospace}
+.api-key-group input:focus{outline:none;border-color:var(--ac)}
+.container{max-width:1300px;margin:0 auto;padding:24px}
+
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--bd)}
+.tab{padding:10px 20px;cursor:pointer;font-size:14px;color:var(--tx2);border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+.tab-content{display:none}
+.tab-content.active{display:block}
 
 /* Upload Zone */
-.upload-zone {
-  background: var(--surface);
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 48px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 24px;
-}
-.upload-zone:hover, .upload-zone.dragover {
-  border-color: var(--accent);
-  background: var(--surface2);
-}
-.upload-zone svg { width: 48px; height: 48px; color: var(--text2); margin-bottom: 12px; }
-.upload-zone p { color: var(--text2); font-size: 14px; }
-.upload-zone .hint { font-size: 12px; margin-top: 8px; }
-.upload-progress {
-  display: none;
-  margin-top: 16px;
-  padding: 0 24px;
-}
-.progress-bar {
-  height: 4px;
-  background: var(--surface2);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.3s;
-  width: 0%;
-}
-.upload-status {
-  font-size: 13px;
-  color: var(--text2);
-  margin-top: 8px;
-}
+.upload-zone{background:var(--sf);border:2px dashed var(--bd);border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--ac);background:var(--sf2)}
+.upload-zone svg{width:48px;height:48px;color:var(--tx2);margin-bottom:12px}
+.upload-zone p{color:var(--tx2);font-size:14px}
+.upload-zone .hint{font-size:12px;margin-top:8px}
+.upload-progress{display:none;margin-top:16px;padding:0 24px}
+.progress-bar{height:4px;background:var(--sf2);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--ac);border-radius:2px;transition:width .3s;width:0}
+.upload-status{font-size:13px;color:var(--tx2);margin-top:8px}
 
-/* Results */
-.upload-result {
-  display: none;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.result-header h3 { font-size: 14px; color: var(--green); }
-.result-url {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.result-url input {
-  flex: 1;
-  background: none;
-  border: none;
-  color: var(--accent2);
-  font-size: 13px;
-  font-family: monospace;
-}
-.result-url input:focus { outline: none; }
-.result-meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-.meta-item {
-  font-size: 12px;
-}
-.meta-item .label { color: var(--text2); }
-.meta-item .value { color: var(--text); margin-top: 2px; }
+/* Upload Options */
+.upload-options{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.upload-options label{font-size:12px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.upload-options input[type="text"]{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;color:var(--tx);font-size:13px;width:140px}
+.upload-options input:focus{outline:none;border-color:var(--ac)}
+.upload-options select{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:5px 8px;color:var(--tx);font-size:13px}
+
+/* Result Card */
+.result-card{display:none;background:var(--sf);border:1px solid var(--gn);border-radius:12px;padding:20px;margin-bottom:24px;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.result-card h3{font-size:14px;color:var(--gn);margin-bottom:12px}
+.url-row{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:12px;display:flex;align-items:center;gap:8px}
+.url-row input{flex:1;background:none;border:none;color:var(--ac2);font-size:13px;font-family:monospace}
+.url-row input:focus{outline:none}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
+.result-grid .item{font-size:12px}
+.result-grid .lbl{color:var(--tx2)}
+.result-grid .val{color:var(--tx);margin-top:2px;word-break:break-all}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.toolbar input[type="text"]{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:7px 12px;color:var(--tx);font-size:13px;flex:1;min-width:200px}
+.toolbar input:focus{outline:none;border-color:var(--ac)}
+.toolbar select{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:7px 10px;color:var(--tx);font-size:13px}
+.stats{font-size:12px;color:var(--tx2);white-space:nowrap}
+
+/* Table */
+.table-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 16px;font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;background:var(--sf2);border-bottom:1px solid var(--bd)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--sf2)}
+.td-name{display:flex;align-items:center;gap:10px;max-width:280px}
+.td-name .icon{font-size:20px;flex-shrink:0}
+.td-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-url{max-width:200px}
+.td-url code{font-size:11px;color:var(--ac2);cursor:pointer;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 0}
+.td-url code:hover{text-decoration:underline}
+.td-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{background:var(--sf2);border:1px solid var(--bd);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--tx2)}
+.td-actions{display:flex;gap:6px}
 
 /* Buttons */
-.btn {
-  padding: 6px 14px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--text);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn:hover { background: var(--accent); border-color: var(--accent); }
-.btn-copy { white-space: nowrap; }
-.btn-danger { color: var(--red); }
-.btn-danger:hover { background: var(--red); border-color: var(--red); color: #fff; }
+.btn{padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn:hover{background:var(--ac);border-color:var(--ac)}
+.btn-sm{padding:3px 8px;font-size:11px}
+.btn-danger{color:var(--rd)}
+.btn-danger:hover{background:var(--rd);border-color:var(--rd);color:#fff}
+.btn-success{color:var(--gn)}
+.btn-success:hover{background:var(--gn);border-color:var(--gn);color:#fff}
 
-/* File List */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.section-header h2 { font-size: 16px; }
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-.file-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  transition: all 0.2s;
-}
-.file-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-.file-preview {
-  height: 140px;
-  background: var(--surface2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.file-preview img, .file-preview video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.file-preview .icon {
-  font-size: 36px;
-  color: var(--text2);
-}
-.file-info {
-  padding: 12px;
-}
-.file-name {
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.file-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 6px;
-}
-.file-size { font-size: 11px; color: var(--text2); }
-.file-actions {
-  display: flex;
-  gap: 6px;
-}
-.file-actions .btn { padding: 3px 8px; font-size: 11px; }
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bd);border-radius:14px;width:520px;max-width:90vw;max-height:90vh;overflow-y:auto;animation:slideUp .2s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bd)}
+.modal-header h3{font-size:15px}
+.modal-body{padding:20px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:16px 20px;border-top:1px solid var(--bd)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;color:var(--tx2);margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;color:var(--tx);font-size:13px}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--ac)}
+.form-group textarea{resize:vertical;min-height:60px;font-family:inherit}
+.form-row{display:flex;gap:12px}
+.form-row .form-group{flex:1}
+
+/* Preview in modal */
+.preview-box{background:var(--sf2);border-radius:8px;height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px}
+.preview-box img,.preview-box video{max-width:100%;max-height:100%;object-fit:contain}
+.preview-box .big-icon{font-size:64px}
 
 /* Toast */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--green);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 13px;
-  z-index: 1000;
-  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
-  opacity: 0;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; pointer-events: auto; }
-@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gn);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast.show{opacity:1}
 
-.empty-state {
-  text-align: center;
-  padding: 48px;
-  color: var(--text2);
-}
-.empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; }
+/* Empty */
+.empty{text-align:center;padding:48px;color:var(--tx2)}
+.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:.5}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+.pagination .btn{min-width:36px;text-align:center}
+.pagination .info{font-size:12px;color:var(--tx2)}
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-      <line x1="12" y1="22.08" x2="12" y2="12"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
     Bucket Storage
   </h1>
   <div class="api-key-group">
-    <label>API Key:</label>
-    <input type="password" id="apiKey" placeholder="Enter API key..." value="">
+    <label>API Key</label>
+    <input type="password" id="apiKey" placeholder="Enter API key...">
   </div>
 </div>
 
 <div class="container">
-  <div class="upload-zone" id="uploadZone">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-      <polyline points="17 8 12 3 7 8"/>
-      <line x1="12" y1="3" x2="12" y2="15"/>
-    </svg>
-    <p>Drag files here or click to upload</p>
-    <p class="hint">Supports all file types, max 5GB</p>
-  </div>
-  <input type="file" id="fileInput" multiple hidden>
-
-  <div class="upload-progress" id="uploadProgress">
-    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="upload-status" id="uploadStatus">Uploading...</div>
+  <div class="tabs">
+    <div class="tab active" data-tab="upload">Upload</div>
+    <div class="tab" data-tab="files">Files</div>
   </div>
 
-  <div class="upload-result" id="uploadResult">
-    <div class="result-header">
+  <!-- Upload Tab -->
+  <div class="tab-content active" id="tab-upload">
+    <div class="upload-options">
+      <label>Bucket: <input type="text" id="uploadBucket" placeholder="default"></label>
+      <label>Tags: <input type="text" id="uploadTags" placeholder="tag1,tag2"></label>
+      <label>Public: <select id="uploadPublic"><option value="true">Yes</option><option value="false">No</option></select></label>
+    </div>
+    <div class="upload-zone" id="uploadZone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p>Drag files here or click to upload</p>
+      <p class="hint">Supports all file types, max 5GB</p>
+    </div>
+    <input type="file" id="fileInput" multiple hidden>
+    <div class="upload-progress" id="uploadProgress">
+      <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="upload-status" id="uploadStatus"></div>
+    </div>
+    <div class="result-card" id="resultCard">
       <h3>Upload Successful</h3>
-      <button class="btn" onclick="hideResult()">Close</button>
-    </div>
-    <div class="result-url">
-      <input type="text" id="resultUrl" readonly>
-      <button class="btn btn-copy" onclick="copyUrl()">Copy</button>
-      <button class="btn" onclick="openUrl()">Open</button>
-    </div>
-    <div class="result-meta">
-      <div class="meta-item"><div class="label">Filename</div><div class="value" id="resFilename">-</div></div>
-      <div class="meta-item"><div class="label">Size</div><div class="value" id="resSize">-</div></div>
-      <div class="meta-item"><div class="label">Type</div><div class="value" id="resType">-</div></div>
-      <div class="meta-item"><div class="label">SHA-256</div><div class="value" id="resHash" style="font-size:10px;font-family:monospace;word-break:break-all">-</div></div>
+      <div class="url-row">
+        <input type="text" id="resultUrl" readonly>
+        <button class="btn" onclick="copyUrl('resultUrl')">Copy URL</button>
+        <button class="btn" onclick="window.open(document.getElementById('resultUrl').value)">Open</button>
+      </div>
+      <div class="result-grid">
+        <div class="item"><div class="lbl">Filename</div><div class="val" id="resName">-</div></div>
+        <div class="item"><div class="lbl">Size</div><div class="val" id="resSize">-</div></div>
+        <div class="item"><div class="lbl">Type</div><div class="val" id="resType">-</div></div>
+        <div class="item"><div class="lbl">Bucket</div><div class="val" id="resBucket">-</div></div>
+        <div class="item"><div class="lbl">SHA-256</div><div class="val" id="resHash" style="font-size:10px;font-family:monospace">-</div></div>
+      </div>
     </div>
   </div>
 
-  <div class="section-header">
-    <h2>Files</h2>
-    <button class="btn" onclick="loadFiles()">Refresh</button>
+  <!-- Files Tab -->
+  <div class="tab-content" id="tab-files">
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search by filename or hash..." oninput="debounceLoad()">
+      <select id="filterBucket" onchange="loadFiles()"><option value="">All Buckets</option></select>
+      <select id="filterType" onchange="loadFiles()">
+        <option value="">All Types</option>
+        <option value="image">Images</option>
+        <option value="video">Videos</option>
+        <option value="audio">Audio</option>
+        <option value="application">Documents</option>
+        <option value="text">Text</option>
+      </select>
+      <span class="stats" id="statsText"></span>
+      <button class="btn" onclick="loadFiles()">Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px"></th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Bucket</th>
+            <th>Tags</th>
+            <th>Date</th>
+            <th style="width:160px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="fileBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
   </div>
-  <div id="fileGrid" class="file-grid">
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
-        <polyline points="13 2 13 9 20 9"/>
-      </svg>
-      <p>No files yet. Upload something!</p>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit File</h3>
+      <button class="btn btn-sm" onclick="closeModal('editModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-box" id="editPreview"></div>
+      <div class="form-group"><label>Filename</label><input type="text" id="editName"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Bucket</label><input type="text" id="editBucket"></div>
+        <div class="form-group"><label>Public</label><select id="editPublic"><option value="true">Yes</option><option value="false">No</option></select></div>
+      </div>
+      <div class="form-group"><label>Tags (comma separated)</label><textarea id="editTags" rows="2" placeholder="tag1, tag2"></textarea></div>
+      <div class="form-group"><label>URL</label><div class="url-row"><input type="text" id="editUrl" readonly><button class="btn btn-sm" onclick="copyUrl('editUrl')">Copy</button></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn btn-success" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>File Detail</h3>
+      <button class="btn btn-sm" onclick="closeModal('detailModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('detailModal')">Close</button>
     </div>
   </div>
 </div>
@@ -333,235 +255,251 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-const API_BASE = window.location.origin;
-let currentFiles = [];
+const API = window.location.origin;
+let files = [];
+let editingId = '';
+let currentPage = 1;
+let totalPages = 1;
+let debounceTimer = null;
 
-function getApiKey() {
-  return document.getElementById('apiKey').value;
-}
+// --- Tabs ---
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+    if (t.dataset.tab === 'files') loadFiles();
+  });
+});
 
-function getBaseURL() {
-  return API_BASE;
-}
+function key() { return document.getElementById('apiKey').value; }
+function headers() { return { 'Authorization': 'Bearer ' + key() }; }
 
-// Upload Zone
+// --- API Key persistence ---
+const savedKey = localStorage.getItem('bucketd_api_key');
+if (savedKey) document.getElementById('apiKey').value = savedKey;
+document.getElementById('apiKey').addEventListener('input', e => {
+  localStorage.setItem('bucketd_api_key', e.target.value);
+});
+
+// --- Upload ---
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
-
 uploadZone.addEventListener('click', () => fileInput.click());
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
-});
-fileInput.addEventListener('change', e => { if (e.target.files.length) uploadFiles(e.target.files); });
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragover'); if (e.dataTransfer.files.length) doUpload(e.dataTransfer.files); });
+fileInput.addEventListener('change', e => { if (e.target.files.length) doUpload(e.target.files); });
 
-async function uploadFiles(files) {
-  const key = getApiKey();
-  if (!key) { showToast('Please enter API Key first', 'var(--red)'); return; }
-
-  for (const file of files) {
-    await uploadSingleFile(file, key);
-  }
-  loadFiles();
+async function doUpload(fileList) {
+  if (!key()) return toast('Please enter API Key', 'var(--rd)');
+  for (const file of fileList) await uploadOne(file);
 }
 
-async function uploadSingleFile(file, apiKey) {
+async function uploadOne(file) {
   const progress = document.getElementById('uploadProgress');
   const fill = document.getElementById('progressFill');
   const status = document.getElementById('uploadStatus');
-
   progress.style.display = 'block';
   status.textContent = 'Uploading ' + file.name + '...';
   fill.style.width = '0%';
 
-  const formData = new FormData();
-  formData.append('file', file);
+  const fd = new FormData();
+  fd.append('file', file);
+  const bucket = document.getElementById('uploadBucket').value.trim();
+  if (bucket) fd.append('bucket', bucket);
+  const tags = document.getElementById('uploadTags').value.trim();
+  if (tags) fd.append('tags', tags);
+  fd.append('is_public', document.getElementById('uploadPublic').value);
 
   try {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', API_BASE + '/api/v1/files');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + apiKey);
-
-    xhr.upload.onprogress = e => {
-      if (e.lengthComputable) {
-        const pct = Math.round((e.loaded / e.total) * 100);
-        fill.style.width = pct + '%';
-        status.textContent = 'Uploading ' + file.name + '... ' + pct + '%';
-      }
-    };
-
-    const result = await new Promise((resolve, reject) => {
-      xhr.onload = () => {
-        if (xhr.status === 201) {
-          resolve(JSON.parse(xhr.responseText));
-        } else {
-          reject(new Error(xhr.responseText));
-        }
-      };
-      xhr.onerror = () => reject(new Error('Upload failed'));
-      xhr.send(formData);
+    xhr.open('POST', API + '/api/v1/files');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + key());
+    xhr.upload.onprogress = e => { if (e.lengthComputable) fill.style.width = Math.round(e.loaded/e.total*100)+'%'; };
+    const result = await new Promise((ok, no) => {
+      xhr.onload = () => xhr.status===201 ? ok(JSON.parse(xhr.responseText)) : no(new Error(xhr.responseText));
+      xhr.onerror = () => no(new Error('Upload failed'));
+      xhr.send(fd);
     });
-
     fill.style.width = '100%';
     status.textContent = 'Done!';
     showResult(result);
-    if (result.deduplicated) {
-      showToast('File deduplicated (already exists)', 'var(--orange)');
-    } else {
-      showToast('Upload successful!', 'var(--green)');
-    }
-  } catch (err) {
-    status.textContent = 'Error: ' + err.message;
-    fill.style.background = 'var(--red)';
-    showToast('Upload failed: ' + err.message, 'var(--red)');
+    toast(result.deduplicated ? 'Deduplicated (already exists)' : 'Upload successful!', result.deduplicated ? 'var(--og)' : 'var(--gn)');
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+    fill.style.background = 'var(--rd)';
+    toast('Upload failed', 'var(--rd)');
   }
-
-  setTimeout(() => { progress.style.display = 'none'; fill.style.background = 'var(--accent)'; }, 2000);
+  setTimeout(() => { progress.style.display='none'; fill.style.background='var(--ac)'; }, 2000);
   fileInput.value = '';
 }
 
 function showResult(r) {
-  const el = document.getElementById('uploadResult');
-  el.style.display = 'block';
+  const c = document.getElementById('resultCard');
+  c.style.display = 'block';
   document.getElementById('resultUrl').value = r.url;
-  document.getElementById('resFilename').textContent = r.filename;
-  document.getElementById('resSize').textContent = formatSize(r.size);
+  document.getElementById('resName').textContent = r.filename;
+  document.getElementById('resSize').textContent = fmtSize(r.size);
   document.getElementById('resType').textContent = r.mime;
+  document.getElementById('resBucket').textContent = r.bucket;
   document.getElementById('resHash').textContent = r.sha256;
 }
 
-function hideResult() {
-  document.getElementById('uploadResult').style.display = 'none';
-}
-
-function copyUrl() {
-  const input = document.getElementById('resultUrl');
-  navigator.clipboard.writeText(input.value);
-  showToast('URL copied!');
-}
-
-function openUrl() {
-  window.open(document.getElementById('resultUrl').value, '_blank');
-}
-
-// File List
+// --- File List (Read) ---
 async function loadFiles() {
-  const key = getApiKey();
-  if (!key) return;
-
+  if (!key()) return;
   try {
-    const resp = await fetch(API_BASE + '/api/v1/files?per_page=50', {
-      headers: { 'Authorization': 'Bearer ' + key }
-    });
+    const params = new URLSearchParams({ per_page: '50', page: currentPage });
+    const search = document.getElementById('searchInput').value.trim();
+    const bucket = document.getElementById('filterBucket').value;
+    const ftype = document.getElementById('filterType').value;
+    if (bucket) params.set('bucket', bucket);
+    const resp = await fetch(API + '/api/v1/files?' + params, { headers: headers() });
     const data = await resp.json();
-    currentFiles = data.files || [];
-    renderFiles(currentFiles);
-  } catch (e) {
-    console.error('Failed to load files:', e);
-  }
+    let list = data.files || [];
+    if (search) {
+      const s = search.toLowerCase();
+      list = list.filter(f => f.filename.toLowerCase().includes(s) || f.sha256.toLowerCase().includes(s));
+    }
+    if (ftype) list = list.filter(f => f.mime_type && f.mime_type.startsWith(ftype));
+    files = list;
+    document.getElementById('statsText').textContent = data.total + ' files total, ' + fmtSize(list.reduce((a,f)=>a+f.size,0));
+    renderTable(list);
+    updateBucketFilter(list);
+  } catch(e) { console.error(e); }
 }
 
-function renderFiles(files) {
-  const grid = document.getElementById('fileGrid');
-  if (!files.length) {
-    grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No files yet. Upload something!</p></div>';
+function debounceLoad() { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadFiles, 300); }
+
+function renderTable(list) {
+  const tbody = document.getElementById('fileBody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--tx2)">No files found. Upload something!</td></tr>';
     return;
   }
-
-  grid.innerHTML = files.map(f => {
-    const url = getBaseURL() + '/f/' + f.sha256;
-    const isImage = f.mime_type && f.mime_type.startsWith('image/');
-    const isVideo = f.mime_type && f.mime_type.startsWith('video/');
-    const preview = isImage
-      ? '<div class="file-preview"><img src="' + url + '" loading="lazy" alt=""></div>'
-      : isVideo
-      ? '<div class="file-preview"><video src="' + url + '" preload="metadata"></video></div>'
-      : '<div class="file-preview"><div class="icon">' + fileIcon(f.mime_type) + '</div></div>';
-
-    return '<div class="file-card">'
-      + preview
-      + '<div class="file-info">'
-      + '<div class="file-name" title="' + escHtml(f.filename) + '">' + escHtml(f.filename) + '</div>'
-      + '<div class="file-meta">'
-      + '<span class="file-size">' + formatSize(f.size) + '</span>'
-      + '<div class="file-actions">'
-      + '<button class="btn" onclick="window.open(\'' + url + '\',\'_blank\')">Open</button>'
-      + '<button class="btn" onclick="copyFileUrl(\'' + url + '\')">Copy</button>'
-      + '<button class="btn btn-danger" onclick="deleteFile(\'' + f.id + '\')">Delete</button>'
-      + '</div></div></div></div>';
+  tbody.innerHTML = list.map(f => {
+    const url = API + '/f/' + f.sha256;
+    const icon = fileIcon(f.mime_type);
+    const tags = (f.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+    const date = new Date(f.created_at).toLocaleDateString('zh-CN');
+    return '<tr>'
+      +'<td>'+icon+'</td>'
+      +'<td><div class="td-name"><span title="'+esc(f.filename)+'">'+esc(f.filename)+'</span></div></td>'
+      +'<td class="td-url"><code onclick="copyText(\''+url+'\')" title="'+url+'">'+url+'</code></td>'
+      +'<td style="font-size:11px;color:var(--tx2)">'+f.mime_type+'</td>'
+      +'<td>'+fmtSize(f.size)+'</td>'
+      +'<td><span class="tag">'+esc(f.bucket)+'</span></td>'
+      +'<td class="td-tags">'+(tags||'<span style="color:var(--tx2);font-size:11px">-</span>')+'</td>'
+      +'<td style="font-size:12px;color:var(--tx2)">'+date+'</td>'
+      +'<td><div class="td-actions">'
+      +'<button class="btn btn-sm" onclick="window.open(\''+url+'\',\'_blank\')">Open</button>'
+      +'<button class="btn btn-sm" onclick="openEdit(\''+f.id+'\')">Edit</button>'
+      +'<button class="btn btn-sm btn-danger" onclick="delFile(\''+f.id+'\',\''+esc(f.filename)+'\')">Delete</button>'
+      +'</div></td>'
+      +'</tr>';
   }).join('');
 }
 
-function fileIcon(mime) {
-  if (!mime) return '📄';
-  if (mime.startsWith('image/')) return '🖼️';
-  if (mime.startsWith('video/')) return '🎬';
-  if (mime.startsWith('audio/')) return '🎵';
-  if (mime.includes('pdf')) return '📕';
-  if (mime.includes('zip') || mime.includes('tar') || mime.includes('compress')) return '📦';
-  if (mime.includes('word')) return '📝';
-  if (mime.includes('sheet') || mime.includes('excel')) return '📊';
-  if (mime.includes('presentation') || mime.includes('powerpoint')) return '📽️';
-  if (mime.startsWith('text/')) return '📃';
+function updateBucketFilter(list) {
+  const sel = document.getElementById('filterBucket');
+  const current = sel.value;
+  const buckets = [...new Set(list.map(f=>f.bucket))].sort();
+  sel.innerHTML = '<option value="">All Buckets</option>' + buckets.map(b=>'<option value="'+esc(b)+'"'+(b===current?' selected':'')+'>'+esc(b)+'</option>').join('');
+}
+
+// --- Edit (Update) ---
+function openEdit(id) {
+  const f = files.find(x => x.id === id);
+  if (!f) return;
+  editingId = id;
+  document.getElementById('editName').value = f.filename;
+  document.getElementById('editBucket').value = f.bucket;
+  document.getElementById('editTags').value = (f.tags||[]).join(', ');
+  document.getElementById('editPublic').value = f.is_public ? 'true' : 'false';
+  document.getElementById('editUrl').value = API + '/f/' + f.sha256;
+  // preview
+  const box = document.getElementById('editPreview');
+  const url = API + '/f/' + f.sha256;
+  if (f.mime_type && f.mime_type.startsWith('image/')) box.innerHTML = '<img src="'+url+'">';
+  else if (f.mime_type && f.mime_type.startsWith('video/')) box.innerHTML = '<video src="'+url+'" controls>';
+  else if (f.mime_type && f.mime_type.startsWith('audio/')) box.innerHTML = '<audio src="'+url+'" controls style="width:100%">';
+  else box.innerHTML = '<div class="big-icon">'+fileIcon(f.mime_type)+'</div>';
+  showModal('editModal');
+}
+
+async function saveEdit() {
+  if (!editingId) return;
+  const tagsStr = document.getElementById('editTags').value.trim();
+  const tags = tagsStr ? tagsStr.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  try {
+    const resp = await fetch(API + '/api/v1/files/' + editingId, {
+      method: 'PUT',
+      headers: { ...headers(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: document.getElementById('editName').value,
+        bucket: document.getElementById('editBucket').value,
+        tags: tags,
+        is_public: document.getElementById('editPublic').value === 'true'
+      })
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    toast('Updated successfully');
+    closeModal('editModal');
+    loadFiles();
+  } catch(e) { toast('Update failed: ' + e.message, 'var(--rd)'); }
+}
+
+// --- Delete ---
+async function delFile(id, name) {
+  if (!confirm('Delete "' + name + '"?')) return;
+  try {
+    await fetch(API + '/api/v1/files/' + id, { method: 'DELETE', headers: headers() });
+    toast('Deleted');
+    loadFiles();
+  } catch(e) { toast('Delete failed', 'var(--rd)'); }
+}
+
+// --- Helpers ---
+function fileIcon(m) {
+  if (!m) return '📄';
+  if (m.startsWith('image/')) return '🖼️';
+  if (m.startsWith('video/')) return '🎬';
+  if (m.startsWith('audio/')) return '🎵';
+  if (m.includes('pdf')) return '📕';
+  if (m.includes('zip')||m.includes('tar')||m.includes('compress')) return '📦';
+  if (m.includes('word')) return '📝';
+  if (m.includes('sheet')||m.includes('excel')) return '📊';
+  if (m.includes('text')) return '📃';
   return '📄';
 }
-
-function copyFileUrl(url) {
-  navigator.clipboard.writeText(url);
-  showToast('URL copied!');
+function fmtSize(b) {
+  if (b<1024) return b+' B';
+  if (b<1048576) return (b/1024).toFixed(1)+' KB';
+  if (b<1073741824) return (b/1048576).toFixed(1)+' MB';
+  return (b/1073741824).toFixed(2)+' GB';
 }
-
-async function deleteFile(id) {
-  const key = getApiKey();
-  if (!key) return;
-  if (!confirm('Delete this file?')) return;
-
-  try {
-    await fetch(API_BASE + '/api/v1/files/' + id, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + key }
-    });
-    showToast('File deleted');
-    loadFiles();
-  } catch (e) {
-    showToast('Delete failed', 'var(--red)');
-  }
-}
-
-function showToast(msg, color) {
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function copyUrl(id) { navigator.clipboard.writeText(document.getElementById(id).value); toast('URL copied!'); }
+function copyText(t) { navigator.clipboard.writeText(t); toast('URL copied!'); }
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function toast(msg, color) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = color || 'var(--green)';
+  t.style.background = color || 'var(--gn)';
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-function formatSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-  return (bytes / 1073741824).toFixed(2) + ' GB';
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Auto-load files on page load if API key is set
-document.getElementById('apiKey').addEventListener('change', loadFiles);
-
-// Check saved API key
-const savedKey = localStorage.getItem('bucketd_api_key');
-if (savedKey) {
-  document.getElementById('apiKey').value = savedKey;
-  loadFiles();
-}
-document.getElementById('apiKey').addEventListener('input', e => {
-  localStorage.setItem('bucketd_api_key', e.target.value);
+// close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
 });
+
+// load files if key exists
+if (key()) loadFiles();
 </script>
 </body>
 </html>

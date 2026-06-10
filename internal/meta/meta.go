@@ -162,6 +162,17 @@ func (s *SQLiteStore) UpdateFileTags(id string, tags []string) error {
 	return err
 }
 
+func (s *SQLiteStore) UpdateFile(id string, filename string, bucket string, tags []string, isPublic bool) error {
+	tagsJSON, _ := json.Marshal(tags)
+	pub := 0
+	if isPublic {
+		pub = 1
+	}
+	_, err := s.db.Exec(`UPDATE files SET filename = ?, bucket = ?, tags = ?, is_public = ?, updated_at = ? WHERE id = ?`,
+		filename, bucket, string(tagsJSON), pub, time.Now().UTC().Format(time.RFC3339Nano), id)
+	return err
+}
+
 type ListOptions struct {
 	Bucket  string
 	Tag     string

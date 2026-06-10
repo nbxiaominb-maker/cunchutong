@@ -1,4 +1,4 @@
-bucketd
+/bucketd
 data/
 *.db
 *.db-shm
