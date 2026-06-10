@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bucket Storage</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #242836;
+  --border: #2e3345;
+  --text: #e4e6ef;
+  --text2: #8b8fa3;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --green: #00b894;
+  --red: #ff6b6b;
+  --orange: #fdcb6e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header h1 svg { width: 24px; height: 24px; }
+.api-key-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.api-key-group label {
+  font-size: 13px;
+  color: var(--text2);
+}
+.api-key-group input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 13px;
+  width: 280px;
+  font-family: monospace;
+}
+.api-key-group input:focus { outline: none; border-color: var(--accent); }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* Upload Zone */
+.upload-zone {
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--accent);
+  background: var(--surface2);
+}
+.upload-zone svg { width: 48px; height: 48px; color: var(--text2); margin-bottom: 12px; }
+.upload-zone p { color: var(--text2); font-size: 14px; }
+.upload-zone .hint { font-size: 12px; margin-top: 8px; }
+.upload-progress {
+  display: none;
+  margin-top: 16px;
+  padding: 0 24px;
+}
+.progress-bar {
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+.upload-status {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 8px;
+}
+
+/* Results */
+.upload-result {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.result-header h3 { font-size: 14px; color: var(--green); }
+.result-url {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.result-url input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--accent2);
+  font-size: 13px;
+  font-family: monospace;
+}
+.result-url input:focus { outline: none; }
+.result-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.meta-item {
+  font-size: 12px;
+}
+.meta-item .label { color: var(--text2); }
+.meta-item .value { color: var(--text); margin-top: 2px; }
+
+/* Buttons */
+.btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:hover { background: var(--accent); border-color: var(--accent); }
+.btn-copy { white-space: nowrap; }
+.btn-danger { color: var(--red); }
+.btn-danger:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* File List */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-header h2 { font-size: 16px; }
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.file-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.file-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.file-preview {
+  height: 140px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.file-preview img, .file-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.file-preview .icon {
+  font-size: 36px;
+  color: var(--text2);
+}
+.file-info {
+  padding: 12px;
+}
+.file-name {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+.file-size { font-size: 11px; color: var(--text2); }
+.file-actions {
+  display: flex;
+  gap: 6px;
+}
+.file-actions .btn { padding: 3px 8px; font-size: 11px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--green);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 1000;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
+  opacity: 0;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; pointer-events: auto; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--text2);
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+      <line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+    Bucket Storage
+  </h1>
+  <div class="api-key-group">
+    <label>API Key:</label>
+    <input type="password" id="apiKey" placeholder="Enter API key..." value="">
+  </div>
+</div>
+
+<div class="container">
+  <div class="upload-zone" id="uploadZone">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    <p>Drag files here or click to upload</p>
+    <p class="hint">Supports all file types, max 5GB</p>
+  </div>
+  <input type="file" id="fileInput" multiple hidden>
+
+  <div class="upload-progress" id="uploadProgress">
+    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="upload-status" id="uploadStatus">Uploading...</div>
+  </div>
+
+  <div class="upload-result" id="uploadResult">
+    <div class="result-header">
+      <h3>Upload Successful</h3>
+      <button class="btn" onclick="hideResult()">Close</button>
+    </div>
+    <div class="result-url">
+      <input type="text" id="resultUrl" readonly>
+      <button class="btn btn-copy" onclick="copyUrl()">Copy</button>
+      <button class="btn" onclick="openUrl()">Open</button>
+    </div>
+    <div class="result-meta">
+      <div class="meta-item"><div class="label">Filename</div><div class="value" id="resFilename">-</div></div>
+      <div class="meta-item"><div class="label">Size</div><div class="value" id="resSize">-</div></div>
+      <div class="meta-item"><div class="label">Type</div><div class="value" id="resType">-</div></div>
+      <div class="meta-item"><div class="label">SHA-256</div><div class="value" id="resHash" style="font-size:10px;font-family:monospace;word-break:break-all">-</div></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Files</h2>
+    <button class="btn" onclick="loadFiles()">Refresh</button>
+  </div>
+  <div id="fileGrid" class="file-grid">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/>
+        <polyline points="13 2 13 9 20 9"/>
+      </svg>
+      <p>No files yet. Upload something!</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = window.location.origin;
+let currentFiles = [];
+
+function getApiKey() {
+  return document.getElementById('apiKey').value;
+}
+
+function getBaseURL() {
+  return API_BASE;
+}
+
+// Upload Zone
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) uploadFiles(e.target.files); });
+
+async function uploadFiles(files) {
+  const key = getApiKey();
+  if (!key) { showToast('Please enter API Key first', 'var(--red)'); return; }
+
+  for (const file of files) {
+    await uploadSingleFile(file, key);
+  }
+  loadFiles();
+}
+
+async function uploadSingleFile(file, apiKey) {
+  const progress = document.getElementById('uploadProgress');
+  const fill = document.getElementById('progressFill');
+  const status = document.getElementById('uploadStatus');
+
+  progress.style.display = 'block';
+  status.textContent = 'Uploading ' + file.name + '...';
+  fill.style.width = '0%';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_BASE + '/api/v1/files');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + apiKey);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        fill.style.width = pct + '%';
+        status.textContent = 'Uploading ' + file.name + '... ' + pct + '%';
+      }
+    };
+
+    const result = await new Promise((resolve, reject) => {
+      xhr.onload = () => {
+        if (xhr.status === 201) {
+          resolve(JSON.parse(xhr.responseText));
+        } else {
+          reject(new Error(xhr.responseText));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Upload failed'));
+      xhr.send(formData);
+    });
+
+    fill.style.width = '100%';
+    status.textContent = 'Done!';
+    showResult(result);
+    if (result.deduplicated) {
+      showToast('File deduplicated (already exists)', 'var(--orange)');
+    } else {
+      showToast('Upload successful!', 'var(--green)');
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    fill.style.background = 'var(--red)';
+    showToast('Upload failed: ' + err.message, 'var(--red)');
+  }
+
+  setTimeout(() => { progress.style.display = 'none'; fill.style.background = 'var(--accent)'; }, 2000);
+  fileInput.value = '';
+}
+
+function showResult(r) {
+  const el = document.getElementById('uploadResult');
+  el.style.display = 'block';
+  document.getElementById('resultUrl').value = r.url;
+  document.getElementById('resFilename').textContent = r.filename;
+  document.getElementById('resSize').textContent = formatSize(r.size);
+  document.getElementById('resType').textContent = r.mime;
+  document.getElementById('resHash').textContent = r.sha256;
+}
+
+function hideResult() {
+  document.getElementById('uploadResult').style.display = 'none';
+}
+
+function copyUrl() {
+  const input = document.getElementById('resultUrl');
+  navigator.clipboard.writeText(input.value);
+  showToast('URL copied!');
+}
+
+function openUrl() {
+  window.open(document.getElementById('resultUrl').value, '_blank');
+}
+
+// File List
+async function loadFiles() {
+  const key = getApiKey();
+  if (!key) return;
+
+  try {
+    const resp = await fetch(API_BASE + '/api/v1/files?per_page=50', {
+      headers: { 'Authorization': 'Bearer ' + key }
+    });
+    const data = await resp.json();
+    currentFiles = data.files || [];
+    renderFiles(currentFiles);
+  } catch (e) {
+    console.error('Failed to load files:', e);
+  }
+}
+
+function renderFiles(files) {
+  const grid = document.getElementById('fileGrid');
+  if (!files.length) {
+    grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No files yet. Upload something!</p></div>';
+    return;
+  }
+
+  grid.innerHTML = files.map(f => {
+    const url = getBaseURL() + '/f/' + f.sha256;
+    const isImage = f.mime_type && f.mime_type.startsWith('image/');
+    const isVideo = f.mime_type && f.mime_type.startsWith('video/');
+    const preview = isImage
+      ? '<div class="file-preview"><img src="' + url + '" loading="lazy" alt=""></div>'
+      : isVideo
+      ? '<div class="file-preview"><video src="' + url + '" preload="metadata"></video></div>'
+      : '<div class="file-preview"><div class="icon">' + fileIcon(f.mime_type) + '</div></div>';
+
+    return '<div class="file-card">'
+      + preview
+      + '<div class="file-info">'
+      + '<div class="file-name" title="' + escHtml(f.filename) + '">' + escHtml(f.filename) + '</div>'
+      + '<div class="file-meta">'
+      + '<span class="file-size">' + formatSize(f.size) + '</span>'
+      + '<div class="file-actions">'
+      + '<button class="btn" onclick="window.open(\'' + url + '\',\'_blank\')">Open</button>'
+      + '<button class="btn" onclick="copyFileUrl(\'' + url + '\')">Copy</button>'
+      + '<button class="btn btn-danger" onclick="deleteFile(\'' + f.id + '\')">Delete</button>'
+      + '</div></div></div></div>';
+  }).join('');
+}
+
+function fileIcon(mime) {
+  if (!mime) return '📄';
+  if (mime.startsWith('image/')) return '🖼️';
+  if (mime.startsWith('video/')) return '🎬';
+  if (mime.startsWith('audio/')) return '🎵';
+  if (mime.includes('pdf')) return '📕';
+  if (mime.includes('zip') || mime.includes('tar') || mime.includes('compress')) return '📦';
+  if (mime.includes('word')) return '📝';
+  if (mime.includes('sheet') || mime.includes('excel')) return '📊';
+  if (mime.includes('presentation') || mime.includes('powerpoint')) return '📽️';
+  if (mime.startsWith('text/')) return '📃';
+  return '📄';
+}
+
+function copyFileUrl(url) {
+  navigator.clipboard.writeText(url);
+  showToast('URL copied!');
+}
+
+async function deleteFile(id) {
+  const key = getApiKey();
+  if (!key) return;
+  if (!confirm('Delete this file?')) return;
+
+  try {
+    await fetch(API_BASE + '/api/v1/files/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + key }
+    });
+    showToast('File deleted');
+    loadFiles();
+  } catch (e) {
+    showToast('Delete failed', 'var(--red)');
+  }
+}
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+  return (bytes / 1073741824).toFixed(2) + ' GB';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Auto-load files on page load if API key is set
+document.getElementById('apiKey').addEventListener('change', loadFiles);
+
+// Check saved API key
+const savedKey = localStorage.getItem('bucketd_api_key');
+if (savedKey) {
+  document.getElementById('apiKey').value = savedKey;
+  loadFiles();
+}
+document.getElementById('apiKey').addEventListener('input', e => {
+  localStorage.setItem('bucketd_api_key', e.target.value);
+});
+</script>
+</body>
+</html>

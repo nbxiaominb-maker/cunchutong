@@ -1,0 +1,22 @@
+services:
+  bucketd:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - bucketd_data:/data
+      - ../configs/bucketd.yaml:/etc/bucketd/config.yaml:ro
+    environment:
+      BUCKETD_STORAGE_DATA_DIR: /data
+      BUCKETD_DATABASE_PATH: /data/metadata.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  bucketd_data:

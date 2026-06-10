@@ -1,0 +1,23 @@
+[Unit]
+Description=Bucket File Storage Service
+After=network.target
+
+[Service]
+Type=simple
+User=bucketd
+Group=bucketd
+ExecStart=/usr/local/bin/bucketd --config /etc/bucketd/config.yaml
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/bucketd
+ProtectHome=true
+PrivateTmp=true
+
+Environment=BUCKETD_STORAGE_DATA_DIR=/var/lib/bucketd
+
+[Install]
+WantedBy=multi-user.target

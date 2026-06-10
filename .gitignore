@@ -1,0 +1,8 @@
+bucketd
+data/
+*.db
+*.db-shm
+*.db-wal
+*.exe
+*.test
+/tmp/
